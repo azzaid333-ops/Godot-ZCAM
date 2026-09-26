@@ -1,0 +1,45 @@
+name: "Godot Android Build"
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  export-android:
+    name: Android Export
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Extract Project Zip
+        run: |
+          unzip -o zacam.zip -d ./
+          ls -la
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Godot Android Export
+        uses: firebelley/godot-export@v6.0.0
+        with:
+          godot_executable_download_url: https://downloads.tuxfamily.org/godotengine/4.3/Godot_v4.3-stable_linux.x86_64.zip
+          godot_export_templates_download_url: https://downloads.tuxfamily.org/godotengine/4.3/Godot_v4.3-stable_export_templates.tpz
+          relative_project_path: ./
+          archive_output: true
+        env:
+          GODOT_ANDROID_SDK_ROOT: ${{ env.ANDROID_HOME }}
+
+      - name: Upload APK Result
+        uses: actions/upload-artifact@v4
+        with:
+          name: APK-Build-Kamera
+          path: /github/workspace/build/
+          
